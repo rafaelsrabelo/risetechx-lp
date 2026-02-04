@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,11 +7,37 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Clock, TrendingUp, Flame, Code2, Smartphone, Users, Store, Sparkles, MessageSquare, Send } from "lucide-react";
+import { ArrowRight, Clock, TrendingUp, Flame, Code2, Smartphone, Users, Store, Sparkles, MessageSquare, Send, X, Cookie, CheckCircle2, BarChart3, GitBranch, RefreshCw, MessageCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [showCookies, setShowCookies] = useState(false);
+
+  useEffect(() => {
+    const hasConsent = document.cookie
+      .split("; ")
+      .some((cookie) => cookie.startsWith("cookie_consent="));
+    setShowCookies(!hasConsent);
+  }, []);
+
+  const handleCookieChoice = (value: "accepted" | "rejected") => {
+    document.cookie = `cookie_consent=${value}; max-age=31536000; path=/; samesite=lax`;
+    setShowCookies(false);
+  };
+
+  const handleNavClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    event.preventDefault();
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Gradient Background */}
@@ -25,27 +53,60 @@ export default function Home() {
             <Image src="/logo.png" alt="RiseTechX" width={64} height={64} className="h-16 w-auto" />
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+            <a
+              href="#home"
+              onClick={(event) => handleNavClick(event, "home")}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+            >
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
+            </a>
+            <a
+              href="#servicos"
+              onClick={(event) => handleNavClick(event, "servicos")}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+            >
               Serviços
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group">
-              Blog
+            </a>
+            <a
+              href="#tecnologias"
+              onClick={(event) => handleNavClick(event, "tecnologias")}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+            >
+              Tecnologias
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Button size="sm" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 border border-primary/50">Começar</Button>
+            </a>
+            <a
+              href="#processos"
+              onClick={(event) => handleNavClick(event, "processos")}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+            >
+              Processos
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+            </a>
+            <a
+              href="#contato"
+              onClick={(event) => handleNavClick(event, "contato")}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+            >
+              Contato
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+            </a>
+            <Button size="sm" className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 border border-primary/50">Entre em contato</Button>
           </nav>
-          <Button size="sm" className="md:hidden bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 border border-primary/50">Começar</Button>
+          <Button size="sm" className="md:hidden bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30 border border-primary/50">Entre em contato</Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-40 pb-20 px-4 md:px-8 border-b-2 border-primary/20">
-        <div className="absolute right-8 top-40 hidden lg:flex flex-col gap-6 opacity-60">
+      <section id="home" className="relative pt-40 pb-20 px-4 md:px-8 overflow-hidden scroll-mt-28">
+        {/* Background colorido */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background">
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-bl-[200px]" />
+        </div>
+
+        <div className="absolute right-8 top-40 hidden lg:flex flex-col gap-6 opacity-60 z-10">
           <div className="h-14 w-14 rounded-xl border-2 border-primary/60 bg-primary/10 flex items-center justify-center hover:bg-primary/20 hover:border-primary transition-all shadow-lg shadow-primary/20">
             <Store className="h-7 w-7 text-primary" />
           </div>
@@ -57,29 +118,29 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="container max-w-6xl mx-auto">
+        <div className="container max-w-6xl mx-auto relative z-10">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border-2 border-primary/50 mb-6 shadow-lg shadow-primary/20">
               <Flame className="h-4 w-4 text-primary animate-pulse" />
               <span className="text-sm font-medium text-primary">Fábrica de Software</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Transforme suas ideias em{" "}
-              <span className="text-primary">soluções digitais</span> inovadoras
+              Sistema sob medida para o{" "}
+              <span className="text-primary bg-primary/10 px-3 py-1 rounded-lg">seu jeito de trabalhar</span>
             </h1>
             
             <div className="flex flex-col gap-4 mb-8 text-muted-foreground">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Clock className="h-5 w-5 text-primary" />
+                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-transparent border-2 border-primary/50 flex items-center justify-center shadow-lg shadow-primary/10">
+                  <Clock className="h-5 w-5 text-primary stroke-[2.5]" />
                 </div>
-                <span className="text-lg">Sistemas personalizados desenvolvidos com agilidade</span>
+                <span className="text-base md:text-lg">Sistemas personalizados desenvolvidos com agilidade</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center shadow-lg shadow-primary/20">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-transparent border-2 border-primary/50 flex items-center justify-center shadow-lg shadow-primary/10">
+                  <TrendingUp className="h-5 w-5 text-primary stroke-[2.5]" />
                 </div>
-                <span className="text-lg">Aplicativos mobile e web de alta performance</span>
+                <span className="text-base md:text-lg">Aplicativos mobile e web de alta performance</span>
               </div>
             </div>
 
@@ -98,7 +159,7 @@ export default function Home() {
       </section>
 
       {/* Features Cards */}
-      <section className="py-16 px-4 md:px-8 border-b-2 border-primary/20">
+      <section id="servicos" className="py-16 px-4 md:px-8 border-b-2 border-primary/20 scroll-mt-28">
         <div className="container max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Card 1 */}
@@ -146,6 +207,152 @@ export default function Home() {
         <Separator className="bg-primary/30 h-0.5" />
       </div>
 
+      {/* Technologies Section */}
+      <section id="tecnologias" className="py-20 px-4 md:px-8 bg-muted/30 scroll-mt-28">
+        <div className="container max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Tecnologias
+          </h2>
+          <p className="text-muted-foreground text-lg mb-12">
+            Usamos as tecnologias mais modernas para criar soluções eficientes e escaláveis
+          </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 items-center justify-items-center">
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/nodedotjs.svg" alt="Node.js" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">Node.js</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/react.svg" alt="React" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">React</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/postgresql.svg" alt="PostgreSQL" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">PostgreSQL</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/aws-svgrepo-com.svg" alt="AWS" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">AWS</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/docker.svg" alt="Docker" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">Docker</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/php.svg" alt="PHP" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">PHP</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/ruby.svg" alt="Ruby on Rails" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">Ruby on Rails</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/flutter.svg" alt="Flutter" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">Flutter</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/nextdotjs.svg" alt="Next.js" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">Next.js</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
+              <Image src="/stacks/typescript.svg" alt="TypeScript" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <span className="text-sm font-medium">TypeScript</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="container max-w-6xl mx-auto px-4 md:px-8">
+        <Separator className="bg-primary/30 h-0.5" />
+      </div>
+
+      {/* Process Section */}
+      <section id="processos" className="py-20 px-4 md:px-8 scroll-mt-28">
+        <div className="container max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            Como funcionam <span className="text-primary">nossos processos?</span>
+          </h2>
+          <p className="text-center text-muted-foreground text-lg mb-16 max-w-3xl mx-auto">
+            Nossos processos são pautados pela objetividade e foco em resultados incríveis, combinando análises precisas, estratégias eficazes e treinamento contínuo
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Process 1 */}
+            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Relatórios customizáveis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  Filtros, campos calculados e exportação fácil em um clique.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Process 2 */}
+            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <RefreshCw className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Automação de rotinas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  O que é repetitivo vira fluxo automático. Menos erros, mais tempo no que gera resultado.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Process 3 */}
+            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <GitBranch className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Fluxos sem atrito</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  Processos mapeados e padronizados do início ao fim — menos passos, menos erros.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Process 4 */}
+            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+              <CardHeader>
+                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Settings className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Escalável e modular</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  Arquitetura pensada para crescer sem refazer: APIs bem definidas e manutenção simples.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <div className="container max-w-6xl mx-auto px-4 md:px-8">
+        <Separator className="bg-primary/30 h-0.5" />
+      </div>
+
       {/* Benefits Section */}
       <section className="py-20 px-4 md:px-8 relative border-b-2 border-primary/20">
         <div className="absolute inset-0 -z-10">
@@ -160,8 +367,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             {/* Benefit 1 */}
             <div className="text-center md:text-left group hover:scale-105 transition-transform p-6 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-xl bg-primary/20 border-2 border-primary/50 mb-4 group-hover:bg-primary/30 group-hover:border-primary transition-all shadow-xl shadow-primary/20">
-                <Code2 className="h-10 w-10 text-primary" />
+              <div className="inline-flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-transparent border-2 border-primary/50 mb-4 group-hover:bg-primary/10 group-hover:border-primary transition-all shadow-lg shadow-primary/10">
+                <Code2 className="h-7 w-7 md:h-8 md:w-8 text-primary stroke-[2.5]" />
               </div>
               <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">Tecnologias modernas</h3>
               <p className="text-muted-foreground">
@@ -171,8 +378,8 @@ export default function Home() {
 
             {/* Benefit 2 */}
             <div className="text-center md:text-left group hover:scale-105 transition-transform p-6 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-xl bg-primary/20 border-2 border-primary/50 mb-4 group-hover:bg-primary/30 group-hover:border-primary transition-all shadow-xl shadow-primary/20">
-                <Smartphone className="h-10 w-10 text-primary" />
+              <div className="inline-flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-transparent border-2 border-primary/50 mb-4 group-hover:bg-primary/10 group-hover:border-primary transition-all shadow-lg shadow-primary/10">
+                <Smartphone className="h-7 w-7 md:h-8 md:w-8 text-primary stroke-[2.5]" />
               </div>
               <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">Experiência multiplataforma</h3>
               <p className="text-muted-foreground">
@@ -182,8 +389,8 @@ export default function Home() {
 
             {/* Benefit 3 */}
             <div className="text-center md:text-left group hover:scale-105 transition-transform p-6 rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-xl bg-primary/20 border-2 border-primary/50 mb-4 group-hover:bg-primary/30 group-hover:border-primary transition-all shadow-xl shadow-primary/20">
-                <Users className="h-10 w-10 text-primary" />
+              <div className="inline-flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-xl bg-transparent border-2 border-primary/50 mb-4 group-hover:bg-primary/10 group-hover:border-primary transition-all shadow-lg shadow-primary/10">
+                <Users className="h-7 w-7 md:h-8 md:w-8 text-primary stroke-[2.5]" />
               </div>
               <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">Time experiente</h3>
               <p className="text-muted-foreground">
@@ -253,14 +460,45 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Colorful Banner */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-primary/40" />
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-1/2 h-full">
+            <div className="text-[400px] font-black text-white/10 select-none">X</div>
+          </div>
+        </div>
+        
+        <div className="container max-w-6xl mx-auto py-20 px-4 md:px-8 relative z-10">
+          <div className="max-w-2xl">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Pronto para simplificar sua rotina com um software feito{" "}
+              <span className="underline decoration-4 decoration-white/80">só para você?</span>
+            </h2>
+            <p className="text-white/80 text-lg mb-8">
+              Cada negócio tem sua forma única de funcionar. O próximo passo é conversar com a gente para transformar sua necessidade em um sistema sob medida.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button size="lg" variant="outline" className="border-white/70 text-white hover:bg-white/10">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Chamar no WhatsApp
+              </Button>
+              <Button size="lg" variant="outline" className="border-white/70 text-white hover:bg-white/10">
+                Falar com um Especialista
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 px-4 md:px-8">
+      <section id="contato" className="py-20 px-4 md:px-8 scroll-mt-28">
         <div className="container max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-12 rounded-2xl border-0 border-primary/40 bg-gradient-to-br from-primary/5 to-transparent">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-12 rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/5 to-transparent">
             {/* Left side - CTA */}
             <div className="flex flex-col justify-center text-center lg:text-left">
-              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 border- border-primary/60 mb-6 animate-pulse shadow-2xl shadow-primary/30 mx-auto lg:mx-0">
-                <Flame className="h-12 w-12 text-primary" />
+              <div className="inline-flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-transparent border-2 border-primary/60 mb-6 shadow-xl shadow-primary/20 mx-auto lg:mx-0">
+                <Flame className="h-8 w-8 md:h-10 md:w-10 text-primary animate-pulse" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 <span className="text-primary border-b-4 border-primary/50 pb-1">Acenda</span> o potencial do seu negócio<br />com tecnologia de ponta
@@ -271,7 +509,7 @@ export default function Home() {
             </div>
 
             {/* Right side - Contact Form */}
-            <Card className="bg-card/50 backdrop-blur border-0 border-primary/40 shadow-2xl shadow-primary/10">
+            <Card className="bg-card/50 backdrop-blur border-2 border-primary/40 shadow-2xl shadow-primary/10">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2">
                   <Send className="h-6 w-6 text-primary" />
@@ -363,6 +601,56 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* WhatsApp Float Button */}
+      <a
+        href="https://wa.me/5511999999999"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 h-14 w-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform group"
+      >
+        <MessageCircle className="h-7 w-7 text-white" />
+        <span className="absolute right-16 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          Fale conosco
+        </span>
+      </a>
+
+      {/* Cookie Consent */}
+      {showCookies && (
+        <div className="fixed bottom-6 left-6 z-50 max-w-md bg-card border-2 border-primary/40 rounded-xl shadow-2xl p-6 animate-in slide-in-from-bottom-4">
+          <div className="flex items-start gap-3 mb-4">
+            <Cookie className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Consentimento de cookies</h3>
+              <p className="text-sm text-muted-foreground">
+                Ao clicar em "Aceitar todos", você concorda com o armazenamento de cookies no seu dispositivo para melhorar a navegação no site, analisar o uso do site e melhorar a sua navegação.
+              </p>
+            </div>
+            <button
+              onClick={() => handleCookieChoice("rejected")}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              onClick={() => handleCookieChoice("accepted")}
+              className="bg-primary hover:bg-primary/90 flex-1"
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Aceitar tudo
+            </Button>
+            <Button
+              onClick={() => handleCookieChoice("rejected")}
+              variant="outline"
+              className="flex-1"
+            >
+              Rejeitar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
