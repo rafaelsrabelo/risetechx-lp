@@ -256,10 +256,10 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 px-4 md:px-8">
         <div className="container max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-12 rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/5 to-transparent">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-12 rounded-2xl border-0 border-primary/40 bg-gradient-to-br from-primary/5 to-transparent">
             {/* Left side - CTA */}
             <div className="flex flex-col justify-center text-center lg:text-left">
-              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 border-4 border-primary/60 mb-6 animate-pulse shadow-2xl shadow-primary/30 mx-auto lg:mx-0">
+              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 border- border-primary/60 mb-6 animate-pulse shadow-2xl shadow-primary/30 mx-auto lg:mx-0">
                 <Flame className="h-12 w-12 text-primary" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
