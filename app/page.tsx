@@ -271,7 +271,7 @@ export default function Home() {
             </div>
 
             {/* Right side - Contact Form */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/40 shadow-2xl shadow-primary/10">
+            <Card className="bg-card/50 backdrop-blur border-0 border-primary/40 shadow-2xl shadow-primary/10">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2">
                   <Send className="h-6 w-6 text-primary" />
