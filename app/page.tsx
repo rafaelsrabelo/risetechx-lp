@@ -6,14 +6,35 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ArrowRight, Clock, TrendingUp, Flame, Code2, Smartphone, Users, Store, Sparkles, MessageSquare, Send, X, Cookie, CheckCircle2, BarChart3, GitBranch, RefreshCw, MessageCircle, Settings } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function Home() {
   const [showCookies, setShowCookies] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
+  const formSchema = z.object({
+    name: z.string().min(2, "Informe seu nome completo."),
+    email: z.string().email("Informe um e-mail válido."),
+    phone: z.string().optional(),
+    message: z.string().min(10, "Conte um pouco mais sobre o projeto."),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
+  });
 
   useEffect(() => {
     const hasConsent = document.cookie
@@ -25,6 +46,29 @@ export default function Home() {
   const handleCookieChoice = (value: "accepted" | "rejected") => {
     document.cookie = `cookie_consent=${value}; max-age=31536000; path=/; samesite=lax`;
     setShowCookies(false);
+  };
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSending(true);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (response.ok) {
+        form.reset();
+      }
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleNavClick = (
@@ -41,9 +85,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Gradient Background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
+      <div className="absolute md:fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-primary/5 rounded-full blur-3xl md:blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[320px] h-[320px] md:w-[500px] md:h-[500px] bg-primary/5 rounded-full blur-3xl md:blur-[120px]" />
       </div>
       
       {/* Header/Nav */}
@@ -102,8 +146,8 @@ export default function Home() {
       {/* Hero Section */}
       <section id="home" className="relative pt-40 pb-20 px-4 md:px-8 overflow-hidden scroll-mt-28">
         {/* Background colorido */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-bl-[200px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background md:bg-gradient-to-br md:from-primary/20 md:via-background md:to-background">
+          <div className="hidden md:block absolute top-0 right-0 w-1/2 h-full bg-primary/10 rounded-bl-[200px]" />
         </div>
 
         <div className="absolute right-8 top-40 hidden lg:flex flex-col gap-6 opacity-60 z-10">
@@ -120,13 +164,13 @@ export default function Home() {
 
         <div className="container max-w-6xl mx-auto relative z-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 border-2 border-primary/50 mb-6 shadow-lg shadow-primary/20">
+            <Badge variant="outline" className="mb-6 gap-2 border-primary/50 text-primary">
               <Flame className="h-4 w-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">Fábrica de Software</span>
-            </div>
+              Fábrica de Software
+            </Badge>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               Sistema sob medida para o{" "}
-              <span className="text-primary bg-primary/10 px-3 py-1 rounded-lg">seu jeito de trabalhar</span>
+              <span className="text-primary underline decoration-4 decoration-primary/60">seu jeito de trabalhar</span>
             </h1>
             
             <div className="flex flex-col gap-4 mb-8 text-muted-foreground">
@@ -145,15 +189,11 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
-              <Button size="lg" className="text-base group bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 border-2 border-primary/50">
+              <Button size="lg" className="text-base group bg-primary hover:bg-primary/90 border-2 border-primary/50">
                 Solicitar orçamento
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-full border border-primary/30 w-fit">
-              <Sparkles className="h-4 w-4 text-primary" />
-              Consultoria gratuita para seu projeto
-            </p>
           </div>
         </div>
       </section>
@@ -186,8 +226,8 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-center p-8">
-                  <div className="h-24 w-24 rounded-full bg-primary/20 border-4 border-primary/60 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-primary/30">
-                    <Code2 className="h-12 w-12 text-primary" />
+                  <div className="h-24 w-24 rounded-full bg-primary border-4 border-primary/60 md:bg-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-primary/30">
+                    <Code2 className="h-12 w-12 text-primary-foreground md:text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -219,52 +259,52 @@ export default function Home() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 items-center justify-items-center">
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/nodedotjs.svg" alt="Node.js" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/nodedotjs.svg" alt="Node.js" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">Node.js</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/react.svg" alt="React" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/react.svg" alt="React" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">React</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/postgresql.svg" alt="PostgreSQL" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/postgresql.svg" alt="PostgreSQL" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">PostgreSQL</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/aws-svgrepo-com.svg" alt="AWS" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/aws-svgrepo-com.svg" alt="AWS" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">AWS</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/docker.svg" alt="Docker" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/docker.svg" alt="Docker" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">Docker</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/php.svg" alt="PHP" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/php.svg" alt="PHP" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">PHP</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/ruby.svg" alt="Ruby on Rails" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/ruby.svg" alt="Ruby on Rails" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">Ruby on Rails</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/flutter.svg" alt="Flutter" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/flutter.svg" alt="Flutter" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">Flutter</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/nextdotjs.svg" alt="Next.js" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/nextdotjs.svg" alt="Next.js" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">Next.js</span>
             </div>
 
             <div className="flex flex-col items-center gap-3 p-4 rounded-xl hover:bg-primary/5 transition-colors group">
-              <Image src="/stacks/typescript.svg" alt="TypeScript" width={64} height={64} className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" />
+              <img src="/stacks/typescript.svg" alt="TypeScript" className="h-10 w-auto md:h-12 group-hover:scale-110 transition-transform brightness-0 invert" loading="lazy" />
               <span className="text-sm font-medium">TypeScript</span>
             </div>
           </div>
@@ -279,69 +319,69 @@ export default function Home() {
       <section id="processos" className="py-20 px-4 md:px-8 scroll-mt-28">
         <div className="container max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Como funcionam <span className="text-primary">nossos processos?</span>
+            Como funciona <span className="text-primary">um projeto?</span>
           </h2>
           <p className="text-center text-muted-foreground text-lg mb-16 max-w-3xl mx-auto">
-            Nossos processos são pautados pela objetividade e foco em resultados incríveis, combinando análises precisas, estratégias eficazes e treinamento contínuo
+            Nosso processo é claro e objetivo, do diagnóstico ao lançamento, garantindo qualidade, previsibilidade e evolução contínua.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Process 1 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <BarChart3 className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-primary border-2 border-primary/50 flex items-center justify-center mb-4 md:bg-primary/15 group-hover:bg-primary/25 transition-colors">
+                  <BarChart3 className="h-6 w-6 text-primary-foreground md:text-primary stroke-[2.5]" />
                 </div>
-                <CardTitle className="text-xl">Relatórios customizáveis</CardTitle>
+                <CardTitle className="text-xl">Descoberta e escopo</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Filtros, campos calculados e exportação fácil em um clique.
+                  Entendemos seu negócio, objetivos e requisitos para definir o escopo ideal.
                 </p>
               </CardContent>
             </Card>
 
             {/* Process 2 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <RefreshCw className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-primary border-2 border-primary/50 flex items-center justify-center mb-4 md:bg-primary/15 group-hover:bg-primary/25 transition-colors">
+                  <RefreshCw className="h-6 w-6 text-primary-foreground md:text-primary stroke-[2.5]" />
                 </div>
-                <CardTitle className="text-xl">Automação de rotinas</CardTitle>
+                <CardTitle className="text-xl">Design e prototipação</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  O que é repetitivo vira fluxo automático. Menos erros, mais tempo no que gera resultado.
+                  Criamos o fluxo e as telas para validar a experiência antes de desenvolver.
                 </p>
               </CardContent>
             </Card>
 
             {/* Process 3 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <GitBranch className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-primary border-2 border-primary/50 flex items-center justify-center mb-4 md:bg-primary/15 group-hover:bg-primary/25 transition-colors">
+                  <GitBranch className="h-6 w-6 text-primary-foreground md:text-primary stroke-[2.5]" />
                 </div>
-                <CardTitle className="text-xl">Fluxos sem atrito</CardTitle>
+                <CardTitle className="text-xl">Desenvolvimento</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Processos mapeados e padronizados do início ao fim — menos passos, menos erros.
+                  Construímos com sprints, entregas frequentes e acompanhamento transparente.
                 </p>
               </CardContent>
             </Card>
 
             {/* Process 4 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/30 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all group">
               <CardHeader>
-                <div className="h-12 w-12 rounded-lg bg-primary/10 border-2 border-primary/50 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <Settings className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-primary border-2 border-primary/50 flex items-center justify-center mb-4 md:bg-primary/15 group-hover:bg-primary/25 transition-colors">
+                  <Settings className="h-6 w-6 text-primary-foreground md:text-primary stroke-[2.5]" />
                 </div>
-                <CardTitle className="text-xl">Escalável e modular</CardTitle>
+                <CardTitle className="text-xl">Teste e lançamento</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  Arquitetura pensada para crescer sem refazer: APIs bem definidas e manutenção simples.
+                  Validamos qualidade, publicamos e seguimos com evolução e suporte.
                 </p>
               </CardContent>
             </Card>
@@ -408,7 +448,7 @@ export default function Home() {
       {/* Testimonials Section */}
       <section className="py-20 px-4 md:px-8 relative border-b-2 border-primary/20">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
+          <div className="absolute top-0 right-1/4 w-[260px] h-[260px] md:w-[400px] md:h-[400px] bg-primary/5 rounded-full blur-3xl md:blur-[100px]" />
         </div>
         <div className="container max-w-6xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -422,7 +462,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Testimonial 1 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/40 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 transition-all">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/40 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 transition-all">
               <CardContent className="pt-6">
                 <p className="text-muted-foreground italic mb-6">
                   "A RiseTechX desenvolveu nosso sistema completo de gestão. A plataforma é super intuitiva e conseguimos otimizar todos os nossos processos. A equipe foi extremamente profissional e atenciosa."
@@ -440,7 +480,7 @@ export default function Home() {
             </Card>
 
             {/* Testimonial 2 */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/40 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 transition-all">
+            <Card className="bg-card md:bg-card/50 md:backdrop-blur border-2 border-primary/40 hover:border-primary hover:shadow-2xl hover:shadow-primary/20 transition-all">
               <CardContent className="pt-6">
                 <p className="text-muted-foreground italic mb-6">
                   "Transformar nossa ideia em um aplicativo funcional foi rápido e eficiente. A comunicação foi excelente durante todo o projeto. Já vemos resultados incríveis com o app em produção!"
@@ -483,8 +523,8 @@ export default function Home() {
                 <MessageCircle className="mr-2 h-5 w-5" />
                 Chamar no WhatsApp
               </Button>
-              <Button size="lg" variant="outline" className="border-white/70 text-white hover:bg-white/10">
-                Falar com um Especialista
+              <Button size="lg" variant="outline" className="border-white/70 text-white hover:bg-white/10" asChild>
+                <a href="#contato">Falar com um Especialista</a>
               </Button>
             </div>
           </div>
@@ -509,7 +549,7 @@ export default function Home() {
             </div>
 
             {/* Right side - Contact Form */}
-            <Card className="bg-card/50 backdrop-blur border-2 border-primary/40 shadow-2xl shadow-primary/10">
+            <Card className="bg-card/50 backdrop-blur border-0 md:border-2 border-primary/40 shadow-2xl shadow-primary/10">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2">
                   <Send className="h-6 w-6 text-primary" />
@@ -520,57 +560,96 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome completo *</Label>
-                    <Input 
-                      id="name" 
-                      placeholder="Seu nome" 
-                      className="border-primary/30 focus:border-primary" 
-                      required
+                <Form {...form}>
+                  <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome completo *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Seu nome"
+                              className="border-primary/30 focus:border-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail *</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="seu@email.com" 
-                      className="border-primary/30 focus:border-primary" 
-                      required
+
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>E-mail *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="seu@email.com"
+                              className="border-primary/30 focus:border-primary"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <Input 
-                      id="phone" 
-                      type="tel" 
-                      placeholder="(00) 00000-0000" 
-                      className="border-primary/30 focus:border-primary" 
+
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefone</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="(00) 00000-0000"
+                              className="border-primary/30 focus:border-primary"
+                              value={field.value || ""}
+                              onChange={(event) =>
+                                field.onChange(formatPhone(event.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Mensagem *</Label>
-                    <Textarea 
-                      id="message" 
-                      placeholder="Conte-nos sobre seu projeto..." 
-                      className="border-primary/30 focus:border-primary min-h-[120px]" 
-                      required
+
+                    <FormField
+                      control={form.control}
+                      name="message"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mensagem *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Conte-nos sobre seu projeto..."
+                              className="border-primary/30 focus:border-primary min-h-[120px]"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 border-2 border-primary/50 group"
-                    size="lg"
-                  >
-                    Enviar mensagem
-                    <Send className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </form>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-primary hover:bg-primary/90 border-2 border-primary/50 group"
+                      size="lg"
+                      disabled={isSending}
+                    >
+                      {isSending ? "Enviando..." : "Enviar mensagem"}
+                      <Send className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
